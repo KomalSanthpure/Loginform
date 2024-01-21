@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Java Backend to Frontend Example</title>
+  </head>
+  <body>
+    <h1> User:</h1>
+    <form id="userForm">
+      <label for="name">Name:</label>
+      <input type="text" id="name" name="name" required /><br /><br />
+
+      <label for="city">city:</label>
+      <input type="text" id="city" name="city" required /><br /><br />
+
+      <button type="button" onclick="addUser()">Add User</button>
+      <button type="button" onclick="fetchData()">Fetch Data</button>
+      <!-- <button type="button" onclick="deleteData()">delete Data</button> -->
+     
+
+    </form>
+    <br />
+    <br />
+    <br />
+  <ul id="dataList"></ul>
+
+    <!-- <div id="dataList"></div> -->
+    
+
+    <script>
+      async function addUser() {
+        const name = document.getElementById("name").value;
+        const city = document.getElementById("city").value;
+
+        // Create a user object
+        const users = {
+          name: name,
+          city: city,
+        };
+        // Send user data to the backend
+        let response = await fetch("http://localhost:8080/users/createUser", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(users),
+        });
+        if (response.ok) {
+          alert("added!");
+        } else {
+          alert("error");
+        }
+      }
+    </script>
+    <script>
+
+      async function fetchData() {
+        // Assuming your backend API endpoint for retrieving data is '/api/data'
+        let response = await fetch("http://localhost:8080/users/all");
+        if (response.ok) {
+          let data = await response.json();
+          let dataList = document.getElementById("dataList"); // Assuming you have an element with ID 'dataList' in your HTML
+
+          // Clear existing content
+          dataList.innerHTML = "";
+
+          for (let index = 0; index < data.length; index++) {
+            let userData = data[index];
+
+            // Create a list item for each user
+            let listItem = document.createElement("li");
+            listItem.textContent = `ID: ${userData.id}, Name: ${userData.name}, City: ${userData.city}`;
+            
+
+               // Add a delete button with an event listener
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = 'Delete';
+    deleteButton.addEventListener('click', () => deleteData(userData.id)); // Pass the user ID to the deleteData function
+
+    listItem.appendChild(deleteButton);
+    dataList.appendChild(listItem);
+            
+    
+    // Append the list item to the list
+           // dataList.appendChild(listItem);
+          }
+        }
+      }
+
+      function displayData(data) {
+        // Assuming the data is an array of objects, you can customize this based on your data structure
+        const container = document.getElementById("data-container");
+        container.innerHTML = ""; // Clear existing data
+
+        data.forEach((item) => {
+          const listItem = document.createElement("div");
+          listItem.textContent = `id: ${item.id}, name: ${item.name}, city: ${item.city}`;
+          container.appendChild(listItem);
+        });
+      }
+       async function deleteData(id) {
+          try {
+            await fetch(`http://localhost:8080/users/delete/${id}`, { method: 'DELETE' });
+            fetchData(); // Refresh the data after deletion
+              }   
+         catch (error) {
+                console.error(error);
+                }
+}
+    </script>
+  </body>
+</html>
